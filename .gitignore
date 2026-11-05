@@ -1,0 +1,83 @@
+# ============================================================
+# Unreal Engine 5 项目 Git 忽略规则
+# 原则：只提交"人写的东西"，不提交"引擎生成的东西"
+# 注意：gitignore 不支持行尾注释，注释必须独占一行
+# ============================================================
+
+# ---------- UE 构建与缓存产物（体积大头）----------
+# Binaries: 编译输出 dll/exe/pdb，随时可重编
+Binaries/
+# Intermediate: 编译中间产物，本机最大的目录之一
+Intermediate/
+# DerivedDataCache: 资源派生缓存（贴图压缩结果等）
+DerivedDataCache/
+# Saved: 日志、存档、自动保存的资产
+Saved/
+
+# ---------- Visual Studio ----------
+# .vs: VS 缓存，Browse.VC.db 常达数百 MB
+.vs/
+.vsconfig
+# .sln 可由 .uproject 右键 Generate 生成
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+*.VC.VC.opendb
+*.ipch
+
+# ---------- 其他 IDE ----------
+.idea/
+.vscode/
+*.iml
+.clangd
+compile_commands.json
+
+# ---------- 日志与临时文件 ----------
+*.log
+*.tmp
+*~
+*.autosave.tmp
+
+# ---------- 操作系统垃圾文件 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 敏感信息防护 ----------
+*.secret
+*.pem
+*.pfx
+LocalConfig.ini
+.env
+
+# ---------- 第三方/引擎演示内容（体积巨大，不入库）----------
+# 仅保留用户自建的核心资产（见提交内容：Content/Blueprint、Content/AI、Content/Maps/themap.umap）
+Content/Anim/
+Content/Assets/
+Content/Collections/
+Content/Developers/
+Content/Fishermans_Cabin/
+Content/Input/
+Content/Input_Action/
+Content/JustBStudios/
+Content/KiteDemo/
+Content/Lighting/
+Content/Localization/
+Content/ParagonProps/
+Content/SampleMap/
+Content/ThirdPerson/
+Content/Touch/
+Content/Trigger/
+Content/UI/
+Content/__ExternalActors__/
+Content/__ExternalObjects__/
+# 仅保留 themap.umap，其余地图不入库
+Content/Maps/Lvl_ThirdPerson.umap
+Content/Maps/ParagonSample.umap
+Content/Maps/ParagonSample_BuiltData.uasset
+# 顶层演示截图（非核心）
+Fishermans_Cabin.png

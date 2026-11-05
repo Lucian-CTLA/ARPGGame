@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ARPG AI Agent",
+	"Description": "Component-based async AI decision layer with LocalFirst fallback. Pluggable remote (LLM) policy that never blocks gameplay.",
+	"Category": "AI",
+	"CreatedBy": "Lucian",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EnabledByDefault": true,
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Plugins": [
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		}
+	],
+	"Modules": [
+		{
+			"Name": "ARPGAIAgent",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

@@ -1,0 +1,6 @@
+{
+  "Version": 3,
+  "EnemyMaxHealth": 300.0,
+  "EnemyAttackPower": 10.0,
+  "PlayerMaxHealth": 100.0
+}

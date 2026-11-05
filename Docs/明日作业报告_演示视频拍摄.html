@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>明日作业报告 · 演示视频拍摄（七大基础技术方向）</title>
+<style>
+  :root{
+    --cream:#FBF7F0;
+    --paper:#FFFFFF;
+    --cocoa:#3E3229;
+    --cocoa-soft:#6B5B4D;
+    --caramel:#C08A4E;
+    --rose:#C4797A;
+    --line:#E6DCCF;
+    --code-bg:#F4EEE4;
+    --green:#5C7A5A;
+    --blue:#4A6741;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:32px 20px 80px;
+    background:var(--cream);
+    color:var(--cocoa);
+    font-family:"Microsoft YaHei","微软雅黑",-apple-system,"Segoe UI",sans-serif;
+    font-size:15px; line-height:1.75;
+  }
+  .wrap{max-width:960px; margin:0 auto;}
+  header{
+    background:var(--paper); border:1px solid var(--line);
+    border-radius:14px; padding:28px 32px; margin-bottom:26px;
+    box-shadow:0 2px 10px rgba(62,50,41,.05);
+  }
+  header h1{margin:0 0 6px; font-size:26px; letter-spacing:.5px;}
+  header .sub{color:var(--cocoa-soft); font-size:14px;}
+  header .meta{margin-top:14px; font-size:13px; color:var(--caramel);}
+
+  h2{
+    margin:38px 0 14px; font-size:20px; padding:8px 0 8px 14px;
+    border-left:5px solid var(--caramel); background:linear-gradient(90deg,#FFFDF9,transparent);
+  }
+  h3{margin:24px 0 8px; font-size:16px; color:var(--caramel);}
+  h4{margin:16px 0 6px; font-size:14.5px; color:var(--cocoa-soft);}
+
+  .card{
+    background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; padding:20px 24px; margin:14px 0;
+  }
+  .card.tip{background:#FDF6EC; border-color:#F0DFC4;}
+  .card.warn{background:#FDF2F2; border-color:#F0CCCC;}
+  .card.good{background:#F3F8F2; border-color:#CFE0CC;}
+
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14px; background:var(--paper);}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top;}
+  th{background:#F4EEE4; font-weight:600; color:var(--cocoa);}
+  td code, p code, li code{
+    background:var(--code-bg); padding:1px 5px; border-radius:4px;
+    font-family:Consolas,"Courier New",monospace; font-size:13px;
+  }
+  pre{
+    background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; font-family:Consolas,"Courier New",monospace;
+    font-size:13px; line-height:1.6; margin:10px 0;
+  }
+  .tag{
+    display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px;
+    margin-right:6px; border:1px solid;
+  }
+  .tag.done{color:var(--green); border-color:#B8CFB5; background:#EFF5EE;}
+  .tag.todo{color:var(--caramel); border-color:#EBD3B0; background:#FDF6EA;}
+  .tag.none{color:var(--rose); border-color:#EFC7C8; background:#FBF0F0;}
+  .kv{display:flex; gap:10px; margin:5px 0;}
+  .kv b{flex:0 0 92px; color:var(--cocoa-soft); font-weight:600;}
+  ul,ol{padding-left:22px; margin:8px 0;}
+  li{margin:4px 0;}
+  .formula{
+    background:var(--paper); border:1px dashed var(--caramel); border-radius:8px;
+    padding:12px 16px; font-weight:600; margin:12px 0; text-align:center;
+  }
+  .shot{
+    background:#FFFDF8; border:1px solid var(--line); border-left:4px solid var(--rose);
+    border-radius:8px; padding:12px 16px; margin:12px 0; font-size:14px;
+  }
+  .shot b{color:var(--rose);}
+  .small{font-size:13px; color:var(--cocoa-soft);}
+  .hr{height:1px; background:var(--line); margin:26px 0;}
+  @media print{
+    body{background:#fff; padding:0; font-size:11.5pt;}
+    .card,table,header{break-inside:avoid;}
+    h2{break-after:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>明日作业报告 · 演示视频拍摄</h1>
+  <div class="sub">ARPGDemo（UE 5.7 纯 C++）· 客户端基础技术方向全覆盖</div>
+  <div class="meta">
+    今日已收尾：举盾「无敌」漏洞修复 · 提交 <code>b9586f8</code> · 已推送 origin/main
+  </div>
+</header>
+
+<!-- ============ 0 ============ -->
+<h2>0. 核心认知：这条视频到底在拍什么</h2>
+
+<div class="card warn">
+  <b>先纠正一个容易跑偏的点：</b>「拍基础功能」和「提供解决方案」是两件事。
+  面试官看这条视频，不是想看「你会不会播个音效」，而是想看
+  <b>「你有没有遇到问题、能不能定位、能不能给出有理由的方案、还能不能验证」</b>。
+</div>
+
+<p>所以每一章都套同一个骨架，缺一章就补一章，别只放画面：</p>
+
+<div class="formula">
+  问题（不这么干会怎样） → 方案（为什么选它，不选别的） → 实证（日志 / stat / 前后对比）
+</div>
+
+<div class="card tip">
+  <b>反面教材：</b>「第 3 章音视频」只放一段连击音效 → 面试官看完只知道你会 PlaySoundAtLocation。<br>
+  <b>正面教材：</b>先说「同一帧 10 个敌人同时受击，10 个音效叠加会削波爆音」→
+  给方案「并发上限 4 + Resolution Rule=Stop Oldest + Volume Scale 0.8，且并发策略挂在资产上而不是调用上」→
+  屏幕上 10 连击实测不爆音。这一章才站得住。
+</div>
+
+<h3>七章总览（按拍摄顺序，不是实现顺序）</h3>
+<table>
+  <tr><th style="width:42px">章</th><th style="width:90px">方向</th><th>要回答的问题（一句话）</th><th style="width:60px">时长</th></tr>
+  <tr><td>1</td><td>网络</td><td>网络请求失败/超时，游戏还能不能正常玩？</td><td>10s</td></tr>
+  <tr><td>2</td><td>性能优化</td><td>20 个敌人同屏时瓶颈在哪？我怎么定位、怎么压下去？</td><td>12s</td></tr>
+  <tr><td>3</td><td>音视频</td><td>大量音效同时播放怎么防爆音？不同材质怎么自动切音效？</td><td>12s</td></tr>
+  <tr><td>4</td><td>输入输出</td><td>战斗/菜单两套按键怎么切换？按键怎么让玩家改、怎么落盘？</td><td>10s</td></tr>
+  <tr><td>5</td><td>安全</td><td>配置文件被人改坏了/被人降级了，我怎么兜住？</td><td>10s</td></tr>
+  <tr><td>6</td><td>国际化</td><td>UI 文本怎么做到改文案不用重新编译？</td><td>8s</td></tr>
+  <tr><td>7</td><td>下载升级</td><td>不重新打包，怎么把敌人数值改掉？</td><td>12s</td></tr>
+</table>
+<p class="small">加片头 3s + 片尾 3s ≈ 90 秒。别贪长，90 秒看完的才是好视频。</p>
+
+<!-- ============ 1 ============ -->
+<h2>1. 网络：关键是「降级」，不是「连通」</h2>
+
+<div class="kv"><b>现状</b><span><code>Build.cs</code> 已加 <code>HTTP</code>/<code>Json</code>/<code>JsonUtilities</code>；<code>Plugins/ARPGAIAgent/.../ARPGAIAgentRemoteClient.cpp:56-128</code> 有现成的 HTTP 写法可照抄。</span></div>
+<div class="kv"><b>要补</b><span><code>UARPGHotUpdateSubsystem</code>（你手写，手册 1.4 有类骨架）。</span></div>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  <b>镜头 A（正常）</b>：控制台打出
+  <code>[HotUpdate] version.json ok, remote=3, local=0</code> →
+  <code>[HotUpdate] balance applied, EnemyMaxHealth=300</code><br>
+  <b>镜头 B（断网）</b>：Ctrl+C 掉 <code>http.server</code>，重启游戏 →
+  <code>[HotUpdate] fetch failed(超时/连接失败), fallback to local, EnemyMaxHealth=100</code><br>
+  <b>镜头 C（关键）</b>：<b>断网状态下正常打怪，游戏完全可玩</b> ← 这一帧才是重点
+</div>
+
+<h3>解说要点（面试话术）</h3>
+<ul>
+  <li>「热更的第一原则不是成功，是<b>失败也不能影响可玩性</b>。所以任何一环出错都走 <code>FallbackToLocal()</code>。」</li>
+  <li>「<b>逐字段降级</b>而不是整包丢弃：一个字段非法（负数/NaN）只回退那一个，其它合法字段照常生效，避免运营改 10 个值错 1 个就全盘作废。」</li>
+  <li>「<b>防降级</b>：服务器版本号比本地小就忽略，防止中间人回滚到旧配置刷分。」</li>
+  <li>「<code>FHttpModule::Get()</code> 和 <code>ProcessRequest()</code> 只能在 GameThread 调；JSON 解析想挪走就用 <code>SetDelegateThreadPolicy(CompleteOnHttpThread)</code> 再 <code>AsyncTask(GameThread)</code> 搬回来。」</li>
+</ul>
+
+<div class="card warn">
+  ⚠️ <b>演示必须走本机</b>：<code>python -m http.server 8000 --directory D:\Warrior\ARPGDemo\Docs\hotupdate_demo</code>。
+  你的代理 <code>127.0.0.1:7890</code> 没通，走外网录制必失败。
+</div>
+
+<!-- ============ 2 ============ -->
+<h2>2. 性能优化：空白最大，也最能拉开差距</h2>
+
+<div class="kv"><b>现状</b><span>几乎空白，唯一可讲的是 <code>BTService_ARPGPreception</code> 的 1Hz 决策节流。</span></div>
+<div class="kv"><b>要补</b><span>三件事：① 对象池 ② Significance Manager 分级 ③ 量化前后对比。</span></div>
+
+<h3>2.1 先做「可测量」，再做「优化」</h3>
+<p>顺序不能反。没有数字的「我优化了一下性能」在面试官那里等于没说。</p>
+<pre>stat unit          // 看 Game / Draw / GPU 三线程，谁最大谁就是瓶颈
+stat game          // GameThread 里各 Tick 耗时
+stat anim          // 动画更新开销
+stat scenerendering // DrawThread
+Unreal Insights    // 抓一段 trace，定位具体函数</pre>
+
+<h3>2.2 三个具体抓手</h3>
+<table>
+  <tr><th style="width:130px">手段</th><th>做法</th><th>面试说法</th></tr>
+  <tr>
+    <td><b>对象池</b></td>
+    <td>命中特效 / 投射物不再 Spawn-Destroy，改用池子复用。<code>SpawnSystemAtLocation</code> 的 <code>ENCPoolMethod</code> 先从 <code>None</code> 改成 <code>AutoRelease</code>。</td>
+    <td>「避免运行时 GC 抖动，把分配成本挪到加载期」</td>
+  </tr>
+  <tr>
+    <td><b>Significance</b></td>
+    <td>按「距玩家距离 + 是否在视野内」分三档：近处全量更新 / 中距降频 / 远处只跑移动。</td>
+    <td>「LOD 不止是模型，AI 和动画也要 LOD」</td>
+  </tr>
+  <tr>
+    <td><b>AI 降频</b></td>
+    <td>已有 1Hz 决策，再补：黑板更新、EQS 查询都挂到同一个节流时钟上。</td>
+    <td>「感知和决策不需要逐帧，人眼分辨不出来」</td>
+  </tr>
+</table>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  左半屏放 <code>stat unit</code>，右半屏放 20 敌人场景。<br>
+  先录「优化前 20 敌人」→ 切「优化后 20 敌人」→ <b>两屏并排放，数字用红框圈出来</b>。
+</div>
+
+<!-- ============ 3 ============ -->
+<h2>3. 音视频：并发防爆音 + 材质切音效</h2>
+
+<div class="kv"><b>现状</b><span>全项目只有 2 处播音效，都是 <code>UGameplayStatics::PlaySoundAtLocation</code>（<code>UARPGAnimNotify_MeleeHit.cpp:135</code>、<code>ARPGAnimNSMeleeHitWindow.cpp:413</code>）。</span></div>
+
+<div class="card tip">
+  <b>这本身就是个能讲的点：</b><code>PlaySoundAtLocation</code> 的签名里<b>没有 concurrency 参数</b>，
+  所以并发策略只能挂在 SoundBase 资产上 —— 说明「音频并发属于资产管线层，不是调用层」。
+  能讲出这句话，说明你是真的看过引擎签名，不是抄的教程。
+</div>
+
+<h3>3.1 操作步骤</h3>
+<ol>
+  <li>Content Browser → 右键 → <b>Sounds → Sound Concurrency</b>，命名 <code>SC_HitLimit</code>。</li>
+  <li>打开设置：
+    <ul>
+      <li><b>Max Count</b> = 4（同时最多 4 个）</li>
+      <li><b>Resolution Rule</b> = <code>Stop Oldest</code>（停最老的，保证最新命中反馈听得到）</li>
+      <li><b>Volume Scale</b> = 0.8（叠加时压一档，<b>这是防爆音的关键</b>）</li>
+    </ul>
+  </li>
+  <li>打开命中音效资产 → Details → <b>Concurrency</b> → 数组加 <code>SC_HitLimit</code>。</li>
+</ol>
+
+<h3>3.2 加分项（做了「音视频」这章才完整）</h3>
+<h4>① Sound Class 分组 + 音量滑块</h4>
+<pre>建 SC_BGM / SC_SFX / SC_UI（Sounds → Sound Class）
+建 Sound Mix（Sounds → Sound Mix），挂这三个 Class
+音效资产 Details → Sound Class 指向对应 Class
+C++：
+UGameplayStatics::SetSoundMixClassOverride(this, SoundMix, SoundClass_SFX, Volume01, 1.f, 0.2f);</pre>
+
+<h4>② 按物理材质切音效（动态音频）</h4>
+<pre>EPhysicalSurface Surface = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+if (USoundBase** Found = SurfaceSounds.Find(Surface)) { PlaySound(*Found); }</pre>
+<p class="small">⚠️ <code>FHitResult::PhysMaterial</code> 是 <code>TWeakObjectPtr&lt;UPhysicalMaterial&gt;</code>，要 <code>.Get()</code> 再判空。给石头/木头/肉体三种 SurfaceType 配三种音效，用 <code>TMap&lt;EPhysicalSurface, TObjectPtr&lt;USoundBase&gt;&gt;</code> 查表。</p>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  <b>主镜头</b>：连击 10 次快速命中 → 音效不叠加爆音（并发 4 + 音量自动压 0.8）<br>
+  <b>加分 1</b>：打石墙 vs 打敌人 → 不同音效<br>
+  <b>加分 2</b>：设置里拖 SFX 滑块 → 音效变小，BGM 不受影响
+</div>
+
+<!-- ============ 3 ============ -->
+<h2>4. 输入输出：IMC 切换 + 按键重绑定</h2>
+
+<div class="kv"><b>现状</b><span>Enhanced Input 已接，<code>Content/Input/Actions/</code> 下有 Action 资产。</span></div>
+<div class="kv"><b>要补</b><span>① IMC 分层切换（战斗 / 菜单）② 按键重绑定 + 落盘 ③ 输入缓冲（可选）。</span></div>
+
+<h3>4.1 三层优先级</h3>
+<table>
+  <tr><th style="width:80px">层</th><th>用途</th><th>切换时机</th></tr>
+  <tr><td>Base</td><td>移动 / 视角（一直都在）</td><td>BeginPlay 常驻</td></tr>
+  <tr><td>Combat</td><td>攻击 / 格挡 / 翻滚</td><td>进入战斗状态</td></tr>
+  <tr><td>Menu</td><td>确认 / 返回 / 光标</td><td>打开菜单，同时 <b>移掉 Combat</b></td></tr>
+</table>
+
+<pre>// 加优先级：数字大 = 优先
+Subsystem->AddMappingContext(CombatIMC, 1);
+Subsystem->RemoveMappingContext(CombatIMC);</pre>
+
+<h3>4.2 重绑定</h3>
+<pre>// 注册：FEnhancedActionKeyMapping 存在 EnhancedInputUserSettings 里
+UEnhancedInputUserSettings* Settings = Subsystem->GetUserSettings();
+Settings->RegisterInputUserSettingsSubsystem(Subsystem);
+
+// 落盘：改完记得存，否则重启丢
+// 建议放到 Project Settings → SaveGame 或直接写 GConfig</pre>
+
+<div class="card tip">
+  <b>「输入缓冲」是很能讲的小优化</b>：攻击动画播到后 20% 时按攻击键，不算丢输入，
+  存进缓冲里等当前动作结束立刻放。玩家体感是「连招不吞键」。
+  实现就一个 <code>TArray&lt;FGameplayTag&gt; BufferedInput</code> + 一个 0.2s 的定时器。
+</div>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  打开菜单 → 移动键立刻失效、光标键生效（证明 IMC 真的切了）→
+  在设置里把「攻击」改成 F 键 → 重启游戏 → 按 F 能攻击（证明落盘了）。
+</div>
+
+<!-- ============ 5 ============ -->
+<h2>5. 安全：把「配置被改坏」当正常流程处理</h3>
+
+<div class="kv"><b>现状</b><span>完全空白。<b>但这章最省事</b>——热更子系统的 <code>SanitizeConfig()</code> 一写，第 1/5/7 三章素材一起出。</span></div>
+
+<h3>5.1 威胁模型（面试要先说清你在防什么）</h3>
+<table>
+  <tr><th style="width:130px">威胁</th><th>兜底</th></tr>
+  <tr><td>配置文件被改坏 / 传输截断</td><td>逐字段范围校验，非法回退本地</td></tr>
+  <tr><td>中间人降级到旧版本</td><td>版本号单调不减，小了就忽略</td></tr>
+  <tr><td>数值被改成 Infinity / NaN</td><td><code>FMath::IsFinite()</code> + 上界钳制</td></tr>
+  <tr><td>玩家改本地内存（进阶）</td><td>关键判定放服务端；单机场景明确说「不防这个」</td></tr>
+</table>
+
+<div class="card warn">
+  ⚠️ <b>面试诚实线</b>：纯单机 ARPG 防不住内存修改器，别吹。
+  正确的说法是：「单机下我保证的是<b>配置完整性</b>和<b>降级容错</b>，
+  真正的数值防作弊需要把判定放服务端，这是架构层面的选择，不是这个 Demo 的目标。」
+  说清边界比硬吹更能加分。
+</div>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  把 <code>balance.json</code> 里 <code>EnemyMaxHealth</code> 改成 <code>-1</code> → 重启 →
+  日志打出 <code>invalid EnemyMaxHealth(-1), use local(100)</code>，
+  <b>同时 <code>EnemyAttackPower</code> 仍然生效</b>（证明是逐字段回退不是整包丢弃）。
+</div>
+
+<!-- ============ 6 ============ -->
+<h2>6. 国际化：明天先做这个，半小时拿下一章</h2>
+
+<div class="kv"><b>现状</b><span>Dashboard Target 已建好（<code>Config/DefaultEditor.ini</code> 已写入）；5 条中文文本已在 <code>WBP_HUD</code> / <code>WBP_DeathScreen</code> 里；gather 产物已生成（<code>zh-CN</code> / <code>en</code> 的 archive 都在）。</span></div>
+
+<h3>剩余三步（约 30 分钟）</h3>
+<ol>
+  <li>Dashboard 切到 <code>en</code> 行 → <b>Edit Translations</b> → 逐条填 → 保存</li>
+  <li>点 <b>Compile</b> → 生成 <code>.locres</code></li>
+  <li><code>Project Settings → Packaging → Advanced</code>：勾 <code>zh-Hans</code> / <code>en</code>，
+      <b>Internationalization Support</b> 设为 <code>All</code></li>
+</ol>
+
+<h3>译文速查</h3>
+<table>
+  <tr><th>原文</th><th>English</th></tr>
+  <tr><td>你已阵亡</td><td>You Died</td></tr>
+  <tr><td>重新开始</td><td>Restart</td></tr>
+  <tr><td>格挡中</td><td>Blocking</td></tr>
+  <tr><td>破防！</td><td>Guard Broken!</td></tr>
+  <tr><td>体力不足</td><td>Out of Stamina</td></tr>
+</table>
+
+<div class="card warn">
+  ⚠️ <b>切 culture 后已存在的 TextBlock 不会自动刷新</b>——<code>FText</code> 只在控件重新求值时取当前语言。
+  最省事是<b>销毁 HUD 再重建</b>，别挨个 <code>SetText</code>（漏一个就中英混排）。<br>
+  ⚠️ <b>必须用 Standalone Game 测</b>，编辑器/PIE 用的是编辑器自身语言，看不出效果。<br>
+  ⚠️ <b>别再点 UI 的 Gather 按钮</b>——它会用 <code>DefaultEditor.ini</code> 重新生成配置，覆盖掉手改好的。
+</div>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  <code>slomo 0.3</code> 慢放 → 点语言按钮 → HUD 文字瞬间中英切换 → 字幕打「国际化 / Localization」。
+</div>
+
+<!-- ============ 7 ============ -->
+<h2>7. 下载升级：热更子系统（你手写，产出最多）</h2>
+
+<div class="kv"><b>文件</b><span><code>Public/Systems/UARPGHotUpdateSubsystem.h</code> + <code>Private/Systems/UARPGHotUpdateSubsystem.cpp</code></span></div>
+<div class="kv"><b>依赖</b><span>Build.cs 已备好（HTTP / Json / JsonUtilities）</span></div>
+<div class="kv"><b>服务端</b><span><code>Docs/hotupdate_demo/</code> 已有 <code>version.json</code> + <code>balance.json</code></span></div>
+
+<h3>时序</h3>
+<pre>Initialize()                                    [GameThread]
+  └─ FetchVersionJson()
+       └─ HTTP GET {BaseUrl}/version.json       [SetTimeout 5s]
+            ├─ 成功 → 解析 { "version": 3, "url": "balance.json" }
+            │         ├─ version &lt;= AppliedVersion → 结束（防降级 + 不重复拉取）
+            │         └─ version &gt;  AppliedVersion → FetchBalanceJson()
+            │                └─ 解析 → SanitizeConfig → ApplyBalance()
+            │                      └─ AsyncTask(GameThread) 里写 Applied + 广播
+            └─ 失败 / 超时 / 解析失败 → FallbackToLocal(原因)</pre>
+
+<h3>降级清单（逐条实现并实测）</h3>
+<table>
+  <tr><th style="width:150px">场景</th><th>处理</th></tr>
+  <tr><td>URL 没配</td><td>直接用本地值，不打错误日志刷屏</td></tr>
+  <tr><td>连不上 / 404 / 500</td><td>记 <code>LastError</code>，用本地值</td></tr>
+  <tr><td>超时（&gt;5s）</td><td>同上，<b>游戏照常能玩</b></td></tr>
+  <tr><td>JSON 解析失败</td><td>同上</td></tr>
+  <tr><td><b>某字段非法</b></td><td><b>逐字段回退</b>，其它合法字段照常采用</td></tr>
+  <tr><td><b>服务器版本更旧</b></td><td>忽略，防降级攻击</td></tr>
+  <tr><td>配置到时敌人已生成</td><td>靠 <code>OnBalanceApplied</code> 广播刷新，敌人侧用 <code>TWeakObjectPtr</code> 保护</td></tr>
+</table>
+
+<div class="card tip">
+  <b>跨类通信套路复用</b>：和破防用的 <code>State.BlockBroken</code> 一模一样 ——
+  子系统不知道谁关心配置，只负责发信号；敌人订阅委托自己刷新。
+  <b>别在子系统里反向持有敌人列表</b>（会造成生命周期耦合）。
+</div>
+
+<h3>接入点</h3>
+<ul>
+  <li><code>UARPGAttributeSet.cpp:7-8</code> 现在写死 <code>InitMaxHealth(100.f)</code></li>
+  <li>敌人 <code>BeginPlay</code> 改成读 <code>UARPGHotUpdateSubsystem::Get(this)-&gt;GetEnemyMaxHealth()</code></li>
+  <li>已有读取点在 <code>AARPGEnemyCharacter.cpp:64</code> / <code>:114</code></li>
+</ul>
+
+<h3>自检清单（写完逐条验）</h3>
+<ul>
+  <li>[ ] 正常：日志打印 <code>applied version 3</code></li>
+  <li>[ ] 关掉 http.server：游戏正常启动，日志显示降级原因，敌人血量回到 100</li>
+  <li>[ ] <code>balance.json</code> 写 <code>"EnemyMaxHealth": -1</code>：该字段回退 100，<b>其它字段仍生效</b></li>
+  <li>[ ] <code>version.json</code> 版本号改小：忽略，不重新拉取</li>
+  <li>[ ] 连发两次启动：第二次因版本相同不再拉取</li>
+</ul>
+
+<h3>拍摄脚本</h3>
+<div class="shot">
+  先打一个敌人记下砍几刀死 → 改 <code>balance.json</code> 的 <code>EnemyMaxHealth</code> 到 300 →
+  重启 → 同一个敌人明显耐打很多。<b>前后两段并排剪，字幕打「下载升级 / Hot Update」</b>。
+</div>
+
+<!-- ============ 执行顺序 ============ -->
+<h2>8. 明日执行顺序（按依赖与性价比排）</h2>
+
+<table>
+  <tr><th style="width:52px">批次</th><th style="width:130px">任务</th><th style="width:70px">预估</th><th>说明</th></tr>
+  <tr>
+    <td><b>A</b></td><td>国际化收尾</td><td>30 min</td>
+    <td><span class="tag done">零风险</span>纯资产操作，不碰 C++。<b>先做这个，稳拿一章</b>，也给自己一个开门红。</td>
+  </tr>
+  <tr>
+    <td><b>B</b></td><td>音频并发</td><td>30 min</td>
+    <td><span class="tag done">零风险</span>Sound Concurrency + Sound Class/Mix 三条资产。做完第 3 章有着落。</td>
+  </tr>
+  <tr>
+    <td><b>C</b></td><td>热更子系统（手写）</td><td>3–4 h</td>
+    <td><span class="tag todo">大头</span>一次性产出第 <b>1（网络）/ 5（安全）/ 7（下载升级）</b> 三章素材，性价比最高。手册 1.4–1.9 齐全。</td>
+  </tr>
+  <tr>
+    <td><b>D</b></td><td>性能优化</td><td>2–3 h</td>
+    <td><span class="tag none">空白</span>对象池 + Significance 分级 + <code>stat unit</code> 前后对比。需要 20 敌人压力场景。</td>
+  </tr>
+  <tr>
+    <td><b>E</b></td><td>输入 IMC 分层</td><td>1 h</td>
+    <td><span class="tag todo">小补</span>已有 Enhanced Input，补个菜单 IMC 切换就能拍第 4 章。</td>
+  </tr>
+  <tr>
+    <td><b>F</b></td><td>录制 + 剪辑</td><td>2 h</td>
+    <td>Standalone 跑，<code>r.SetRes 1920x1080w</code> / <code>t.MaxFPS 60</code>。</td>
+  </tr>
+</table>
+
+<div class="card tip">
+  <b>建议节奏</b>：上午 A → B（两小时收两章，且都不用编译）；
+  下午 C（手写，最需要脑子清醒）；晚上 D → E。<br>
+  <b>如果时间不够</b>，D（性能优化）可以只做「<code>stat unit</code> 前后对比 + 一句瓶颈分析」的轻量版，
+  先把七个方向都占住，深度后面再补。
+</div>
+
+<!-- ============ 风险 ============ -->
+<h2>9. 风险与坑位提醒</h2>
+
+<div class="card warn">
+  <ul>
+    <li><b>改 <code>.h</code> 必须关编辑器完整 Build</b>，Live Coding 对头文件改动不可靠（今天已经栽过一次：状态文字不显示就是因为 Live Coding 产物早于改动）。</li>
+    <li><b>别点 Dashboard 的 Gather 按钮</b>，会覆盖手改的 <code>Config/Localization/Game_Gather.ini</code>。要重跑就走命令行 <code>-run=GatherText</code>。</li>
+    <li><b>manifest / archive 是 UTF-16LE 的 JSON</b>，不是 ini。脚本解析要 <code>decode('utf-16')</code>。</li>
+    <li><b>国际化测试必须用 Standalone</b>，PIE 看不出效果。</li>
+    <li><b>热更演示必须走本机 8000 端口</b>，外网代理不通。</li>
+    <li><b>简历单页余量只剩 1–7pt</b>，加「国际化 / 热更新 / 音频并发」关键词前必须删等量内容，改完重新数页数（用 <code>ComputeStatistics(2)</code> 或 pymupdf，别靠截图）。</li>
+  </ul>
+</div>
+
+<!-- ============ 命令速查 ============ -->
+<h2>10. 命令速查卡</h2>
+
+<pre># 热更服务端
+python -m http.server 8000 --directory D:\Warrior\ARPGDemo\Docs\hotupdate_demo
+
+# 本地化收集（不要点 UI 按钮）
+UnrealEditor-Cmd.exe D:\Warrior\ARPGDemo\ARPGDemo.uproject -run=GatherText
+
+# 拍摄辅助
+culture en            # 切英文（调试期）
+culture zh-Hans       # 切回中文
+slomo 0.3             # 慢动作
+ToggleDebugCamera     # 自由机位
+r.SetRes 1920x1080w
+t.MaxFPS 60
+stat unit             # 性能三线程
+RebuildNavigation     # NavMesh 不绿时
+</pre>
+
+<div class="hr"></div>
+<p class="small">
+  今日提交：<code>b9586f8</code>（已推送 origin/main）· 32 文件 +1003 行<br>
+  参考手册：<code>Docs/基础技术补强_实现手册.md</code>
+</p>
+
+</div>
+</body>
+</html>
