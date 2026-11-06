@@ -6,7 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/ProgressBar.h"  
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "UARPGHUDWidget.generated.h"
+
+class UCanvasPanel;
+class UTexture2D;
 
 /**
  * 
@@ -29,6 +33,11 @@ public:
 	// 必须是 public：AARPGHeroCharacter 要从外面调它，放 protected 会报 C2248
 	UFUNCTION(BlueprintCallable)
 	void SetStatus(int32 StatusIndex);
+
+	// P 键火球图标的冷却：Remaining 还剩几秒，Total 总时长（5 秒）
+	// 遮罩从上往下退，数字显示剩余秒，倒计时到 0 时整个图标恢复原样
+	UFUNCTION(BlueprintCallable)
+	void UpdateFireCooldown(float Remaining, float Total);
 
 
 
@@ -54,4 +63,28 @@ protected:
 
 	// 开局把三条状态都收起来，省得 UMG 里忘了设 Collapsed 导致三条叠着一起显示
 	virtual void NativeConstruct() override;
+
+private:
+	// ---- P 键火球图标（右下角）----
+	// 蓝图里手摆了就叫 FireIcon / FireCooldownMask / FireCooldownText 自动接管；
+	// 没摆也没关系，NativeConstruct 里会用 C++ 直接建出来，不用在 Designer 里拖控件
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> FireIcon;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> FireCooldownMask;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> FireCooldownText;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	TObjectPtr<UTexture2D> FireIconTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float FireIconSize = 96.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float FireIconMargin = 40.f;   // 距屏幕右下角的边距
+
+	void BuildFireIcon();          // 蓝图没摆控件时，用 WidgetTree 现场造一个
 };

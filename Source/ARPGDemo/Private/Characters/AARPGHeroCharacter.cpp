@@ -12,11 +12,28 @@
 #include "UI/UARPGHUDWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "Characters/AARPGEnemyCharacter.h"
+#include "AbilitySystem/UARPGGameplayAbility_FireProjectile.h"
+#include "UObject/ConstructorHelpers.h"
+#include "TimerManager.h"
 
 
 
 AAARPGHeroCharacter::AAARPGHeroCharacter()
 {
+	// 基类把 Tick 关了，火球冷却要每帧推给 HUD，这里单独打开
+	PrimaryActorTick.bCanEverTick = true;
+
+	// P 键的输入动作：直接按路径找，省掉每次在 BP_HeroCharacter 的 Class Defaults 里拖一次
+	static ConstructorHelpers::FObjectFinder<UInputAction> FireActionAsset(
+		TEXT("/Game/Input_Action/IA_Fire.IA_Fire"));
+	if (FireActionAsset.Succeeded())
+	{
+		FireAction = FireActionAsset.Object;
+	}
+
+	// 不建蓝图子类也能用：默认指向 C++ 那个火球技能，蓝图里想换再覆盖
+	FireAbilityClass = UUARPGGameplayAbility_FireProjectile::StaticClass();
+
 	//Cameraboom
 CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 CameraBoom->SetupAttachment(GetRootComponent());
@@ -64,21 +81,13 @@ void AAARPGHeroCharacter::BeginPlay()
 	{
 		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(BlockAbilityClass, 1, INDEX_NONE, this));
 	}
-	if (HUDWidgetClass && IsLocallyControlled())
+	if (AbilitySystemComponent && FireAbilityClass.Get())
 	{
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC)
-		{
-			HUDWidget = CreateWidget<UUARPGHUDWidget>(PC, HUDWidgetClass);
-			if (HUDWidget)
-			{
-				HUDWidget->AddToViewport();
-				HUDWidget->UpdateHealth(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
-				HUDWidget->UpdateStamina(AttributeSet->GetStamina(), AttributeSet->GetMaxStamina());   // 开局先把两条都刷成当前值
-			}
-
-		}
+		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(FireAbilityClass, 1, INDEX_NONE, this));
 	}
+	// 建 HUD（血条 + 体力条）。开局走这里就够；
+	// 重生时这一帧还没 Controller，会由 PossessedBy 补建
+	InitHUD();
 	// 绑 Stamina 委托：和基类绑 Health 的写法一字不差，只是回调换成自己的 OnStaminaChanged
 	if (AbilitySystemComponent && AttributeSet)
 	{
@@ -109,6 +118,56 @@ void AAARPGHeroCharacter::BeginPlay()
 		);
 	}
 	
+}
+
+void AAARPGHeroCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// 存档点复活时，Pawn 是在世界已经跑起来之后才 Spawn 的：
+	// AGameModeBase 先 SpawnDefaultPawnAtTransform（BeginPlay 立刻执行），
+	// 最后才 Possess（GameModeBase.cpp:1355-1368）。
+	// 于是 BeginPlay 里 IsLocallyControlled() 拿不到 Controller，HUD 一行都没跑，
+	// 表现就是"复活后血条全没了"。这里补一次。
+	// 延到下一帧，等 Possess 完成、PlayerController 的视口稳定下来，
+	// 否则 AddToViewport 可能加到一个还不存在的 ViewportClient 上
+	if (!HUDWidget && HUDWidgetClass && GetWorld())
+	{
+		GetWorldTimerManager().SetTimerForNextTick(this, &AAARPGHeroCharacter::InitHUD);
+	}
+}
+
+void AAARPGHeroCharacter::InitHUD()
+{
+	// 已经有了就不重复建：开局时 BeginPlay 和 PossessedBy 都会走到这里
+	if (HUDWidget || !HUDWidgetClass)
+	{
+		return;
+	}
+
+	// 没有 Controller 就说明还没被接管，交给另一条路径（PossessedBy）补
+	if (!IsLocallyControlled() || !AttributeSet)
+	{
+		return;
+	}
+
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+	{
+		return;
+	}
+
+	HUDWidget = CreateWidget<UUARPGHUDWidget>(PC, HUDWidgetClass);
+	if (!HUDWidget)
+	{
+		return;
+	}
+
+	HUDWidget->AddToViewport();
+	HUDWidget->UpdateHealth(AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
+	HUDWidget->UpdateStamina(AttributeSet->GetStamina(), AttributeSet->GetMaxStamina());   // 开局/复活先刷成当前值
+
+	UE_LOG(LogTemp, Warning, TEXT("[HUD] 血条已创建（%s）"), *GetName());
 }
 
 void AAARPGHeroCharacter::OnHealthChanged(const FOnAttributeChangeData& ChangeData)
@@ -181,6 +240,9 @@ void AAARPGHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// 格挡：一个动作绑两个事件（按下举盾 / 松手放下）
 	EIC->BindAction(BlockAction, ETriggerEvent::Started, this, &ThisClass::Input_Block_Start);
 	EIC->BindAction(BlockAction, ETriggerEvent::Completed, this, &ThisClass::Input_Block_End);
+
+	// P 键火球：只在按下那一刻触发一次
+	EIC->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::Input_Fire);
 
 }
 
@@ -266,6 +328,49 @@ void AAARPGHeroCharacter::Input_Block_End(const FInputActionValue& Value)
 	}
 }
 
+void AAARPGHeroCharacter::Input_Fire(const FInputActionValue& Value)
+{
+	if (!AbilitySystemComponent || !FireAbilityClass) return;
+	if (bIsDead) return;
+
+	// 冷却用时间戳挡，不依赖 GE：只要还没到点就直接 return，
+	// 这样连按 P 不会刷出一串火球，HUD 也能用同一个值画倒计时
+	if (GetFireCooldownRemaining() > 0.f) return;
+
+	if (AbilitySystemComponent->TryActivateAbilityByClass(FireAbilityClass))
+	{
+		// 只有真正放出去了才开始转 CD；被 Block / 打断不算
+		LastFireTime = GetWorld()->GetTimeSeconds();
+		if (HUDWidget)
+		{
+			HUDWidget->UpdateFireCooldown(FireCooldownSeconds, FireCooldownSeconds);
+		}
+		LastShownCooldown = FireCooldownSeconds;
+	}
+}
+
+float AAARPGHeroCharacter::GetFireCooldownRemaining() const
+{
+	if (!GetWorld() || LastFireTime < 0.f) return 0.f;   // 还没放过
+	const float Elapsed = GetWorld()->GetTimeSeconds() - LastFireTime;
+	return FMath::Max(0.f, FireCooldownSeconds - Elapsed);
+}
+
+void AAARPGHeroCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// 只在"冷却中有变化"或"刚从冷却变回可用"这两段时间里推 HUD，平时一帧也不刷
+	const float Remaining = GetFireCooldownRemaining();
+	if (Remaining <= 0.f && LastShownCooldown <= 0.f) return;
+
+	if (HUDWidget)
+	{
+		HUDWidget->UpdateFireCooldown(Remaining, FireCooldownSeconds);
+	}
+	LastShownCooldown = Remaining;
+}
+
 void AAARPGHeroCharacter::HandleDeath()
 {
 	Super::HandleDeath();   // 基类里已经播 DeathMontage（AARPGCharacterBase.cpp:103）
@@ -274,6 +379,8 @@ void AAARPGHeroCharacter::HandleDeath()
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (PC && DeathScreenClass)
 	{
+		// Owner 必须是 PlayerController 而不是 Pawn：复活时 Pawn 会被销毁，
+		// 挂在 Pawn 名下的 Widget 会跟着一起没，菜单还没点就消失了
 		if (UUserWidget* Screen = CreateWidget<UUserWidget>(PC, DeathScreenClass))
 		{
 			Screen->AddToViewport(100);
@@ -282,4 +389,18 @@ void AAARPGHeroCharacter::HandleDeath()
 		}
 	}
 
+}
+
+void AAARPGHeroCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// 存档点复活会先 Destroy 旧 Pawn 再造新的：
+	// 旧 HUD 是挂在 PlayerController 名下的，不会跟着 Pawn 自动消失，
+	// 不清掉的话新 Pawn 的 BeginPlay 又建一个，两条血条/体力条会叠在一起
+	if (HUDWidget)
+	{
+		HUDWidget->RemoveFromParent();
+		HUDWidget = nullptr;
+	}
+
+	Super::EndPlay(EndPlayReason);
 }

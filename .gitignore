@@ -41,6 +41,10 @@ compile_commands.json
 *.tmp
 *~
 *.autosave.tmp
+# 配置/资产的临时备份（如 DefaultEngine.ini.bak_mainmenu）
+*.bak
+*.bak_*
+*.bak[0-9]
 
 # ---------- 操作系统垃圾文件 ----------
 .DS_Store
@@ -73,6 +77,9 @@ Content/ThirdPerson/
 Content/Touch/
 Content/Trigger/
 Content/UI/
+# StoneGolem 角色资源包（900MB，第三方）、rainstory RPG UI 素材（45MB，第三方）
+Content/StoneGolem/
+Content/_rainstoryRPGUI/
 Content/__ExternalActors__/
 Content/__ExternalObjects__/
 # 仅保留 themap.umap，其余地图不入库

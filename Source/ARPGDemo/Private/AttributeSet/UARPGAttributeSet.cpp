@@ -69,6 +69,41 @@ void UUARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 		}
 
 
+		// ---- 敌人举盾（盾牌格挡）----
+		// 玩家那条走 State.Blocking（要体力、会破防），敌人没有体力那套概念，
+		// 这里单独开一条：身上有 State.Guard 就按 GuardDamageScale 减免，而且只挡正面。
+		if (ASC && ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Guard"))))
+		{
+			bool bFromFront = true;
+
+			// 攻击者从哪来：优先取 Context 里的 EffectCauser；
+			// 但 MakeEffectContext() 只保证填了 Instigator，Causer 常常是空的，
+			// 所以退一步用 OriginalInstigator —— MeleeHit 那条链路里它就是挥刀的人
+			const FGameplayEffectContextHandle Ctx = Data.EffectSpec.GetContext();
+			const AActor* Causer = Ctx.GetEffectCauser();
+			if (!Causer)
+			{
+				Causer = Ctx.GetOriginalInstigator();
+			}
+			const AActor* TargetActor = Data.Target.GetAvatarActor();
+			if (Causer && TargetActor)
+			{
+				FVector ToCauser = Causer->GetActorLocation() - TargetActor->GetActorLocation();
+				ToCauser.Z = 0.f;   // 只比水平方向，否则高处的攻击会被判成背后
+				if (!ToCauser.IsNearlyZero())
+				{
+					// 点积 > 0.25 ≈ 前方 ±75° 内算正面，绕到侧后打就挡不住
+					bFromFront = FVector::DotProduct(
+						TargetActor->GetActorForwardVector(), ToCauser.GetSafeNormal()) > 0.25f;
+				}
+			}
+
+			if (bFromFront)
+			{
+				FinalDamage = LocalDamage * GuardDamageScale;
+			}
+		}
+
 		const float NewHealth = GetHealth() - FinalDamage;
 
 		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth())); // 写回并再夹一次

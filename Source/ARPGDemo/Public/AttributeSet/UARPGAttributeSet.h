@@ -54,6 +54,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributs|Defensive")
 	float BlockDamageScale = 0.3f;   // 挡住后实际吃到的比例，0.3 = 减伤 70%
 
+	// 敌人举盾（State.Guard）时正面吃到的比例，0.2 = 挡掉 80%。
+	// 跟上面的 BlockDamageScale 分开：玩家举盾要扣体力、会破防，敌人这套只管减伤
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributs|Defensive")
+	float GuardDamageScale = 0.2f;
+
 
 protected:
 	//Attribute:Which attribute is being changed this round?

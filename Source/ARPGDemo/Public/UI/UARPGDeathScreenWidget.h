@@ -61,13 +61,39 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> RebirthButton;
 
+	// 返回主菜单按钮。WBP_DeathScreen 里已经建好了这个控件；
+	// 用 Optional 是因为 WBP_VictoryScreen 是复制出去的、没带这个按钮，
+	// 用 BindWidget 会让它编译报错。
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> MainMenuButton;
+
+	// 从最近的存档点复活。WBP 里没有同名控件时，NativeConstruct 会在代码里
+	// 照着 RebirthButton 的样式和位置自动补一个 —— 加这个功能不需要动资产。
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> CheckpointButton;
+
 private:
 	float Elapsed = 0.f;
 	FTimerHandle FadeTimerHandle;
 
+	// 本次死亡时有没有可用的存档点，决定第二个按钮出不出来
+	bool bHasCheckpoint = false;
+
 	void OnFadeTick();
+
+	// 没绑到 CheckpointButton 就现场造一个，塞进根 CanvasPanel
+	void BuildCheckpointButtonIfMissing();
+
+	// 把按钮内部那个 TextBlock 的文字改掉（找不到就算了，不报警）
+	void SetButtonLabel(UButton* Target, const FText& Label);
+
+	UFUNCTION()
+	void OnCheckpointClicked();
 
 	// AddDynamic 绑定的回调必须是 UFUNCTION
 	UFUNCTION()
 	void OnRebirthClicked();
+
+	UFUNCTION()
+	void OnMainMenuClicked();
 };
