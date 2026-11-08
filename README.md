@@ -108,7 +108,7 @@ TMap<
 
 扫掠结果本身使用 `TArray<AActor*>`，并通过 `AddUnique()` 清理同一帧的重复结果；跨帧的攻击去重由 `TSet` 完成。
 
-旧的 `UUARPGAnimNotify_MeleeHit` 仍保留在源码中，但它是早期的单帧球形重叠实现。当前主角连招使用的是持续窗口 `UARPGAnimNSMeleeHitWindow`。
+旧的 `UUARPGAnimNotify_MeleeHit` 仍保留在源码中，但它是早期的单帧球形重叠实现。当前主角连招使用的是持续窗口 `UARPGAnimNSMeleeHitWindow`；敌人与 Boss 的攻击蒙太奇暂时仍在用旧通知，两条路径并存，后续计划统一。
 
 ### 4. 集中的命中反馈
 
@@ -357,7 +357,7 @@ Development Editor
 
 - 当前项目是单机逻辑，没有完整的多人网络同步；
 - 主角当前使用持续 NotifyState 进行近战判定；
-- 旧的单帧 `UUARPGAnimNotify_MeleeHit` 仅作为遗留兼容代码保留；
+- 旧的单帧 `UUARPGAnimNotify_MeleeHit` 仍在敌人与 Boss 的攻击蒙太奇上使用，主角连招已迁移到持续窗口，两套判定暂时并存；
 - `DefensePower` 已定义，但尚未参与最终伤害公式；
 - 项目暂时没有完整的自动化战斗测试；
 - 远程 AI 为可选能力，未配置 API Key 时自动使用本地决策。
