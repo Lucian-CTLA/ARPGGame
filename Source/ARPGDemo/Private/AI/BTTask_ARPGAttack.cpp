@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "Characters/AARPGEnemyCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "AbilitySystemComponent.h"
 
 // 等待计时结构体在头文件里（行为树要按它的大小分配 NodeMemory）
@@ -85,16 +86,66 @@ void UBTTask_ARPGAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	AAARPGEnemyCharacter* Enemy = AIController ? Cast<AAARPGEnemyCharacter>(AIController->GetPawn()) : nullptr;
 
 	// 敌人没了（被打死销毁）也算这次攻击结束，否则节点会永远挂起
-	if (!Enemy || !Enemy->IsComboActive())
+	if (!Enemy)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
 
-	if (Memory && Memory->ElapsedTime >= MaxWaitTime)
+	// 这一轮还在播（含段间空档）：什么都不做，等它自己打完
+	if (Enemy->IsComboActive())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[BTTask_ARPGAttack] %s 连招超时 %.1f 秒，强制结束"), *GetNameSafe(Enemy), MaxWaitTime);
+		if (Memory)
+		{
+			Memory->IdleTime = 0.f;
+		}
+
+		if (Memory && Memory->ElapsedTime >= MaxWaitTime)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[BTTask_ARPGAttack] %s 连招超时 %.1f 秒，强制结束"), *GetNameSafe(Enemy), MaxWaitTime);
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		}
+		return;
+	}
+
+	// 举盾期间不续连招。举盾会把行为树暂停，这里一般是走不到的，留作保险
+	if (Enemy->IsGuarding())
+	{
+		return;
+	}
+
+	// 玩家跑远了就把控制权交回行为树，让它去追人。
+	// 不做这个判断的话，Boss 会站在原地对着空气连续挥拳
+	APawn* Player = UGameplayStatics::GetPlayerPawn(Enemy, 0);
+	const bool bPlayerInRange = Player
+		&& FVector::DistSquared(Player->GetActorLocation(), Enemy->GetActorLocation())
+			<= FMath::Square(ComboRestartRange);
+
+	if (!bPlayerInRange || !Enemy->ShouldUseComboAttack())
+	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return;
+	}
+
+	// 玩家还在面前：隔 ComboRestartDelay 秒自己再开一轮。
+	// 关键在这儿 —— 以前打完一轮要回报 Succeeded，然后走行为树里那个 Wait 节点，
+	// 等它数完才轮到下一次攻击，那个等待就是"攻击间隔太长"的来源。
+	// 现在节点一直挂着不交还，节奏完全由 ComboRestartDelay 控制。
+	if (!Memory)
+	{
+		Enemy->StartComboAttack();
+		return;
+	}
+
+	Memory->IdleTime += DeltaSeconds;
+	if (Memory->IdleTime >= ComboRestartDelay)
+	{
+		Memory->IdleTime = 0.f;
+		Memory->ElapsedTime = 0.f;   // 每轮单独计时，别让好几轮累加成一次超时
+		if (!Enemy->StartComboAttack())
+		{
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		}
 	}
 }
 

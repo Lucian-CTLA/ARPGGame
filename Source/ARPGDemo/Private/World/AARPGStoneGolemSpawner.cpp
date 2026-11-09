@@ -3,8 +3,10 @@
 #include "World/AARPGStoneGolemSpawner.h"
 
 #include "Characters/AARPGEnemyCharacter.h"
+#include "Characters/AARPGHeroCharacter.h"
 #include "World/UARPGCombatStateSubsystem.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -30,6 +32,17 @@ AAARPGStoneGolemSpawner::AAARPGStoneGolemSpawner()
 	ClickBox->SetCollisionObjectType(ECC_WorldDynamic);
 	ClickBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	ClickBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	// 触发球：真正在用的入口。只对 Pawn 产生 Overlap，不挡路也不挡视线，
+	// 玩家走到灯跟前就会踩到。半径在 Details 里可调，默认 350 能包住整盏灯。
+	TriggerSphere = CreateDefaultSubobject<USphereComponent>(TEXT("TriggerSphere"));
+	TriggerSphere->SetupAttachment(Root);
+	TriggerSphere->InitSphereRadius(TriggerRadius);
+	TriggerSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	TriggerSphere->SetCollisionObjectType(ECC_WorldDynamic);
+	TriggerSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	TriggerSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	TriggerSphere->SetGenerateOverlapEvents(true);
 
 	// 默认特效：工程里现成的"巨人召唤"，是给 Boss 出场用的，正好对味
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SummonFxAsset(
@@ -58,6 +71,36 @@ void AAARPGStoneGolemSpawner::BeginPlay()
 	{
 		PC->bEnableClickEvents = true;
 	}
+
+	// 走进范围就召唤。绑在这里而不是构造函数里，是因为构造阶段 CDO 也会跑一遍，
+	// 那时候绑上的委托对真正生成的实例没用。
+	if (TriggerSphere)
+	{
+		// 构造函数里 InitSphereRadius 用的是 CDO 的值，之后在 Details 里改 TriggerRadius
+		// 不会回写到构造函数，所以这里按实际属性再设一次。
+		TriggerSphere->SetSphereRadius(TriggerRadius);
+
+		TriggerSphere->OnComponentBeginOverlap.AddDynamic(
+			this, &AAARPGStoneGolemSpawner::OnTriggerBeginOverlap);
+	}
+}
+
+void AAARPGStoneGolemSpawner::OnTriggerBeginOverlap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	// 只认玩家。敌人、火球、特效飘过去都不算，否则 Boss 自己走过去就把自己召出来了
+	if (!Cast<AAARPGHeroCharacter>(OtherActor))
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[StoneGolem] 玩家进入触发范围，开始召唤"));
+	TriggerSpawn();
 }
 
 bool AAARPGStoneGolemSpawner::TriggerSpawn()

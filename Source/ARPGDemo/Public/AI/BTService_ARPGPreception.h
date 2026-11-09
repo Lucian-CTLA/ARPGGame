@@ -28,14 +28,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector ComboStateKey;// 黑板里"战斗状态"这个键
 
+	// 三档距离，由近到远：攻击 / 追击 / 警戒，超出 AlertDistance 就是脱战游荡
+	// 300 / 500 / 1000：进 300 就开打，500 之外不再追，1000 之外彻底放羊
 	UPROPERTY(EditAnywhere, Category = "Perception")
 	float AttackDistance = 300.f;
 
 	UPROPERTY(EditAnywhere, Category = "Perception")
-	float ChaseDistance = 800.f;
+	float ChaseDistance = 500.f;
 
 	UPROPERTY(EditAnywhere, Category = "Perception")
-	float AlertDistance = 1500.f;
+	float AlertDistance = 1000.f;
 
 
 };

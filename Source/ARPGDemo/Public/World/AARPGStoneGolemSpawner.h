@@ -7,6 +7,7 @@
 #include "AARPGStoneGolemSpawner.generated.h"
 
 class UBoxComponent;
+class USphereComponent;
 class UNiagaraSystem;
 class USoundBase;
 class AAARPGEnemyCharacter;
@@ -38,10 +39,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "StoneGolem")
 	bool TriggerSpawn();
 
-	// 鼠标左键点到这个 Actor 时引擎会调这里（需要 PlayerController 的 Enable Click Events）
+	// 鼠标左键点到这个 Actor 时引擎会调这里。
+	// 保留它只是为了以后真要开光标交互时还能用 —— 现在的主触发方式换成了走进范围（见下面的 TriggerSphere），
+	// 因为游戏跑在 GameOnly 输入模式下（鼠标锁定、没有光标），Actor 的点击事件根本派发不出来。
 	virtual void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton) override;
 
 protected:
+	// 玩家走进这个球就召唤。和存档点同一套做法：不挡路、不需要瞄准、不需要光标
+	UPROPERTY(VisibleAnywhere, Category = "Trigger")
+	TObjectPtr<USphereComponent> TriggerSphere;
+
+	// 触发半径。默认 350，比灯的碰撞盒大一圈，走到灯跟前就能踩到
+	UPROPERTY(EditAnywhere, Category = "Trigger")
+	float TriggerRadius = 350.f;
+
+	UFUNCTION()
+	void OnTriggerBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
 	// ---- 要生成的怪物 ----
 	// 填一个继承 AAARPGEnemyCharacter 的蓝图（比如 BP_StoneGolemEnemy）
 	UPROPERTY(EditAnywhere, Category = "StoneGolem")
@@ -51,9 +71,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "StoneGolem")
 	FVector SpawnLocation = FVector(-12592.0f, 13638.457834f, 106.341315f);
 
-	// 勾上就忽略上面的坐标，直接生成在召唤点自己的位置上（摆位更直观）
+	// 默认直接在召唤点自己的位置上生成（灯的位置），这样玩家踩到范围就能看见它从火光里站起来。
+	// 取消勾选才会用上面那个硬编码坐标 —— 那个点是早期从别处抄来的，
+	// 和灯未必在一处，之前"点了灯但看不见 Boss"就是这么来的。
 	UPROPERTY(EditAnywhere, Category = "StoneGolem")
-	bool bSpawnAtSpawnerLocation = false;
+	bool bSpawnAtSpawnerLocation = true;
 
 	// 火光炸开到怪物出现的间隔，太短会看不清特效
 	UPROPERTY(EditAnywhere, Category = "StoneGolem")

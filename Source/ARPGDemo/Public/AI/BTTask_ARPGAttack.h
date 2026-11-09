@@ -10,6 +10,8 @@
 struct FBTARPGAttackMemory
 {
 	float ElapsedTime = 0.f;
+	/** 一轮连招打完之后，距离下一轮已经过去了多久 */
+	float IdleTime = 0.f;
 };
 
 /**
@@ -42,4 +44,15 @@ protected:
 	// 最多等这么久就强行结束，免得这只怪永远卡在攻击状态里不动
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	float MaxWaitTime = 12.f;
+
+	// 一轮五段打完之后，玩家还在近身的话隔多久再开一轮。
+	// 这个值就是你能直接调的"攻击间隔"——以前它完全由行为树里的 Wait 节点决定，
+	// 在资产里看不见也不好改，所以才会觉得"打完一刀要站半天"。
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float ComboRestartDelay = 0.7f;
+
+	// 玩家超过这个距离就不再自动续连招，把控制权交回行为树去追人。
+	// 不要设得比行为树的攻击距离（300）大太多：站在打不到的位置连挥拳，看起来最蠢
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float ComboRestartRange = 320.f;
 };

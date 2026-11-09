@@ -18,6 +18,7 @@ public class ARPGDemo : ModuleRules
 			"GameplayTags",
 			"GameplayTasks" ,
 			"AIModule",
+			"NavigationSystem",// UNavigationSystemV1::GetRandomReachablePointInRadius，脱战游荡挑可达点
 			"UMG",
 			"Slate",
 			"SlateCore",
